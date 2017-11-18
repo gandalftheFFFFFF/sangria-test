@@ -36,7 +36,7 @@ object Main extends App {
         }
         QueryParser.parse(query) match {
           case Success(queryAst) => {
-            complete(Executor.execute(schema, queryAst, new ProductRepo,
+            complete(Executor.execute(schema, queryAst, new DatabaseAccess,
               variables = vars,
               operationName = operation)
               .map(OK -> _)

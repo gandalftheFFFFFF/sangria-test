@@ -8,3 +8,7 @@ This is a simple test using Sangria - a GraphQL implementation library for scala
 
 Don't have newlines in the query string; it will break. That's a feature.
 
+## TODO
+
+Make more queries: company, employment
+
