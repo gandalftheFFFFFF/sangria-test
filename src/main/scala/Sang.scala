@@ -1,45 +1,38 @@
 package default
 
+import sangria.schema._
+import sangria.macros.derive._
+
+import SlickObjects._
+
 object Sang {
-  import sangria.schema._
-  import sangria.macros.derive._
-
-  case class Picture(width: Int, height: Int, url: Option[String])
-
-  implicit val PictureType = deriveObjectType[Unit, Picture](
-    ObjectTypeDescription("The product picture"),
-    DocumentField("url", "Picture CDN URL"))
-
-  trait Identifiable {
-    def id: String
-  }
 
   val IdentifiableType = InterfaceType(
     "Identifiable",
     "Entity that can be identified",
     fields[Unit, Identifiable](
-      Field("id", StringType, resolve = _.value.id)))
+      Field("id", IntType, resolve = _.value.id)))
 
-  case class Product(id: String, name: String, description: String) extends Identifiable {
-    def picture(size: Int): Picture =
-      Picture(width = size, height = size, url = Some(s"//cdn.com/$size/$id.jpg"))
-  }
-
-  implicit val ProductType = deriveObjectType[Unit, Product](
+  implicit val PersonType = deriveObjectType[Unit, Person](
     Interfaces(IdentifiableType),
-    IncludeMethods("picture"))
+    ObjectTypeDescription("The person"))
 
-  val Id = Argument("id", StringType)
+  implicit val CompanyType = deriveObjectType[Unit, Company](
+    Interfaces(IdentifiableType),
+    ObjectTypeDescription("The company"))
 
-  val QueryType = ObjectType("Query", fields[ProductRepo, Unit](
-    Field("product", OptionType(ProductType),
-      description = Some("Returns a product with specific `id`."),
+  val Id = Argument("id", IntType)
+
+  val QueryType = ObjectType("Query", fields[DatabaseAccess, Unit](
+    Field("person", OptionType(PersonType),
+      description = Some("Returns a person"),
       arguments = Id :: Nil,
-      resolve = c => c.ctx.product(c arg Id)),
-    Field("products", ListType(ProductType),
-      description = Some("Returns a list of all available products."),
-      resolve = _.ctx.products)))
+      resolve = c => c.ctx.person(c arg Id)),
+    Field("persons", ListType(PersonType),
+      description = Some("Returns a list of all available persons."),
+      resolve = _.ctx.persons)))
 
   val schema = Schema(QueryType)
 
 }
+
